@@ -1,29 +1,45 @@
-import * as React from "react"
-import { Link } from "gatsby"
-import { StaticImage } from "gatsby-plugin-image"
-
+import React from "react"
+import { graphql } from "gatsby"
 import Layout from "../components/layout"
-import Seo from "../components/seo"
+import SEO from "../components/seo"
+import "@wordpress/block-library/build-style/style.css"
+import "@wordpress/base-styles/_z-index.scss"
 
-const IndexPage = () => (
-  <Layout>
-    <Seo title="Home" />
-    <h1>Hi people</h1>
-    <p>Welcome to your new Gatsby site.</p>
-    <p>Now go build something great.</p>
-    <StaticImage
-      src="../images/gatsby-astronaut.png"
-      width={300}
-      quality={95}
-      formats={["auto", "webp", "avif"]}
-      alt="A Gatsby astronaut"
-      style={{ marginBottom: `1.45rem` }}
-    />
-    <p>
-      <Link to="/page-2/">Go to page 2</Link> <br />
-      <Link to="/using-typescript/">Go to "Using TypeScript"</Link>
-    </p>
-  </Layout>
-)
-
-export default IndexPage
+export default ({ data }) => {
+  let posts = data.allWpPost.edges
+  return (
+    <Layout>
+      <SEO title="home" />
+      <h4>Posts</h4>
+      {posts.slice(posts.length - 1, posts.length).map(({ node, index }) => {
+        console.log(node)
+        return (
+          <div key={index}>
+            <p>{node.title}</p>
+            <img src={node.featuredImage.node.mediaItemUrl} />
+            <div dangerouslySetInnerHTML={{ __html: node.content }} />
+          </div>
+        )
+      })}
+    </Layout>
+  )
+}
+export const pageQuery = graphql`
+  query {
+    allWpPost {
+      edges {
+        node {
+          id
+          content
+          title
+          featuredImage {
+            node {
+              id
+              mediaItemUrl
+            }
+          }
+        }
+      }
+    }
+  }
+`
